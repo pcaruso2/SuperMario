@@ -1,0 +1,14 @@
+package graphics;
+
+public class Sprite {
+
+	public SpriteSheet sheet;
+	public int x, y;
+	
+	public Sprite(SpriteSheet sheet, int x, int y){
+		this.sheet = sheet;
+		this.x = x;
+		this.y = y;
+	}
+	
+}

@@ -1,0 +1,9 @@
+package graphics;
+
+public class Sprite {
+
+	public Sprite(SpriteSheet sheet, int x, int y){
+		
+	}
+	
+}

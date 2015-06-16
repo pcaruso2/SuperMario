@@ -1,0 +1,81 @@
+package input;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import mario.Game;
+import entity.Entity;
+
+public class KeyboardInput implements KeyListener{
+	public static final int  WKEY = KeyEvent.VK_W;
+	public static final int DKEY = KeyEvent.VK_D;
+	public static final int  AKEY = KeyEvent.VK_A;
+	public static final int SKEY = KeyEvent.VK_S;
+	public static final double GRAVITY = 10;
+
+	
+	/**
+	 * Deals with keys being pressed W, A, D
+	 */
+	public void keyPressed(KeyEvent e) {
+		
+		int key = e.getKeyCode();
+		for(Entity en:Game.handler.entity){
+			switch(key){
+			case WKEY:
+				//Start the jump
+				if(!en.jumping){
+					en.jumping = true;
+					en.gravity=GRAVITY;
+				}
+				break;
+			/* No need for a down button.
+			case sKey:
+				en.setVelY(5);
+				break;
+			*/
+			case DKEY:
+				en.setVelX(5);
+				en.facing = 1;
+				break;
+			case AKEY:
+				en.setVelX(-5);
+				en.facing = 0;
+				break;
+			}
+		}
+		
+
+			
+	}
+
+	/** 
+	 * Takes care of key releases and stops movement
+	 */
+	public void keyReleased(KeyEvent e) {
+		int key = e.getKeyCode();
+		for(Entity en:Game.handler.entity){
+			switch(key){
+			case WKEY:
+				en.setVelY(0);
+				break;
+			case sKey:
+				en.setVelY(0);
+				break;
+			case DKEY:
+				en.setVelX(0);
+				break;
+			case AKEY:
+				en.setVelX(0);
+				break;
+			}
+		}
+		
+	}
+
+	
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+	}
+
+}

@@ -1,0 +1,34 @@
+package tests;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import entity.Entity;
+
+public class EntityTest {
+
+	Entity tester = new Entity(10,20,30,40,true);
+	
+	@Test
+	public void testGetX() {
+		assertEquals("Not getting correct X-coordinate.", 10, tester.getX());
+	}
+
+	@Test
+	public void testGetY() {
+		assertEquals("Not getting correct Y-coordinate.", 20, tester.getY());
+	}
+	
+	@Test
+	public void testIsSolid() {
+		assertTrue("Entity should be solid but is not.", tester.isSolid());
+	}
+
+	@Test
+	public void testXSet(){
+		tester.setX(100);
+		assertEquals("X-Coordinate was not set correctly", 100, tester.getX());
+	}
+	
+}

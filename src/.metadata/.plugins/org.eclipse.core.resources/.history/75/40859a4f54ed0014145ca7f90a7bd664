@@ -1,0 +1,202 @@
+package mario;
+
+import input.KeyboardInput;
+
+import java.awt.*;
+import java.awt.image.BufferStrategy;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.JFrame;
+
+import entity.Player;
+
+
+public class Game extends Canvas implements Runnable{
+	
+	//---------------------------------------VARIABLES---------------------------------------
+	
+	/**
+	 * I dont know why it wants this
+	 */
+	private static final long serialVersionUID = 5977555617223559694L;
+	
+	/**
+	 * Width of the Frame
+	 */
+	public static final int WIDTH = 270;
+	
+	/**
+	 * Height of the frame
+	 */
+	public static final int HEIGHT = (WIDTH/14) * 10;
+	
+	/**
+	 * Scale of the frame
+	 */
+	public static final int SCALE = 4;
+	
+	/**
+	 * Title of the game
+	 */
+	public static final String TITLE = "Super Mario";
+	
+	/**
+	 * Game loop Thread
+	 */
+	private Thread thread;
+	
+	/**
+	 * Boolean for running
+	 */
+	private boolean running = false;
+	
+	/**
+	 * Instance of the Handler
+	 */
+	public static Handler handler;
+	
+	//---------------------------------------CONSTRUCTOR--------------------------------------
+	public Game(){
+		Dimension size  = new Dimension(WIDTH*SCALE, HEIGHT*SCALE);
+		setPreferredSize(size);
+		setMinimumSize(size);
+		setMaximumSize(size);
+	}
+	
+	//---------------------------------------FUNCTIONS--------------------------------------
+
+	/**
+	 * Initializes the parts of the game (Handler, KeyListener, and player)
+	 */
+	private void init(){
+		handler = new Handler();
+		System.out.println("Handler Created...");
+		addKeyListener(new KeyboardInput());
+		System.out.println("Keyboard Listener Created...");
+		handler.addEntity(new Player(300, 512, 64, 64, true, Id.player, handler));
+		System.out.println("Player Created...");
+		try{
+		    AudioInputStream audioInputStream =
+		        AudioSystem.getAudioInputStream(
+		            this.getClass().getResource("/SuperMario/res/theme_song.mp3"));
+		    Clip clip = AudioSystem.getClip();
+		    clip.open(audioInputStream);
+		    clip.start();
+		}
+		catch(Exception ex)
+		{
+		}
+		// handler.addTile(new Wall(200, 200, 64, 64, true, Id.wall, handler));
+
+	}
+	
+	/**
+	 * Starts the game loop
+	 */
+	private synchronized void start(){
+		if(running)
+			return;
+		running = true;
+		thread = new Thread(this, "Game Loop");
+		thread.start();
+	}
+	
+	/**
+	 * Stops the game loop
+	 */
+	private synchronized void stop(){
+		if(!running)
+			return;
+		running = false;
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * runs the game loop
+	 */
+	@SuppressWarnings("unused")
+	public void run(){
+		init();
+		requestFocus();
+		long lastTime = System.nanoTime();
+		long timer = System.currentTimeMillis();
+		double delta = 0;
+		double ns = 1000000000/60;
+		int frames = 0;
+		int ticks = 0;
+		while(running){
+			long current = System.nanoTime();
+			delta+=(current-lastTime)/ns;
+			lastTime = current;
+			while(delta>=1){
+				tick();
+				ticks++;
+				delta--;
+			}
+			render();
+			frames++;
+			if(System.currentTimeMillis()-timer>1000){
+				timer+=1000;
+				//System.out.println(frames +"FPS and "+ticks+" Updates per Sec");
+				frames=0;
+				ticks=0;
+			}
+		}
+		stop();
+	}
+	
+	/**
+	 * Displays graphics
+	 */
+	public void render(){
+		BufferStrategy buffStrat = getBufferStrategy();
+		if(buffStrat == null){
+			createBufferStrategy(3);
+			return;
+		}
+		
+		Graphics g = buffStrat.getDrawGraphics();
+		g.setColor(Color.CYAN);
+		g.fillRect(0, 0, getWidth(), getHeight());
+		handler.render(g);
+		g.dispose();
+		buffStrat.show();
+	}
+	
+	/**
+	 * update graphics
+	 */
+	public void tick(){
+		handler.tick();
+	}
+	
+	/**
+	 * Sets up the frame for the game to be viewed
+	 * @param frame Instance of the fame to be used
+	 * @param game Instance of the game to be viewed
+	 */
+	public static void setupFrame(JFrame frame, Game game){
+		frame.add(game);
+		frame.pack();
+		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+	}
+
+	/**
+	 * Creates the game and starts the loop
+	 * @param args
+	 */
+	public static void main(String[] args){
+		Game game = new Game();
+		JFrame frame = new JFrame(TITLE);
+		setupFrame(frame, game);
+		game.start();
+	}
+}
